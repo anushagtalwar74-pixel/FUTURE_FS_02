@@ -37,13 +37,7 @@ export default function Analytics({ leads = [] }) {
         <div style={{ display: "flex", gap: 40, marginTop: 20 }}>
 
             <PieChart width={300} height={250}>
-                <Pie
-                    data={data}
-                    dataKey="value"
-                    nameKey="name"
-                    outerRadius={90}
-                    label
-                >
+                <Pie data={data} dataKey="value" nameKey="name" outerRadius={90} label>
                     {data.map((_, index) => (
                         <Cell key={index} fill={COLORS[index]} />
                     ))}

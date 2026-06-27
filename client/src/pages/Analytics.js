@@ -10,9 +10,7 @@ import {
   Cell,
   BarChart,
   Bar,
-  FunnelChart,
-  Funnel,
-  LabelList
+
 } from "recharts";
 
 import {
@@ -20,8 +18,7 @@ import {
   Target,
   Users,
   Activity,
-  MousePointerClick,
-  Globe
+
 } from "lucide-react";
 
 /* ---------------- DATA ---------------- */
