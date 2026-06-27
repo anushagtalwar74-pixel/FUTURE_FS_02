@@ -31,7 +31,16 @@ router.post("/login", async (req, res) => {
         expiresIn: "1d"
     });
 
-    res.json({ token });
+    // ✅ ADDED ONLY THIS (IMPORTANT FIX)
+    const userData = {
+        id: user._id,
+        email: user.email
+    };
+
+    res.json({
+        token,
+        user: userData
+    });
 });
 
 module.exports = router;
