@@ -1,6 +1,8 @@
+import api from "../api";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Mail, Lock, LogIn } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const { login } = useAuth();
@@ -10,22 +12,33 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Email and Password required");
-      return;
-    }
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
     setLoading(true);
     setError("");
 
     try {
-      await login(email, password);
-    } catch (err) {
-      setError("Invalid login or server not running");
-    }
+      const res = await api.post("/api/auth/login", {
+        email,
+        password
+      });
 
-    setLoading(false);
+      localStorage.setItem("token", res.data.token);
+
+      toast.success("Login successful");
+
+      // keep only if your context supports it
+      if (login) {
+        login(res.data.user);
+      }
+
+    } catch (err) {
+      toast.error("Invalid login or server not running");
+      setError("Invalid login");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,6 +64,7 @@ export default function Login() {
           <input
             className="bg-transparent outline-none text-white w-full"
             placeholder="Email"
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
@@ -62,6 +76,7 @@ export default function Login() {
             type="password"
             className="bg-transparent outline-none text-white w-full"
             placeholder="Password"
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>

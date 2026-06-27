@@ -9,7 +9,7 @@ export default function AddLead({ onLeadAdded }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        await axios.post("http://localhost:5000/api/leads", {
+        await axios.post("https://YOUR-RENDER-URL.onrender.com/api/login", {
             name,
             email,
             source

@@ -1,3 +1,3 @@
 import { io } from "socket.io-client";
 
-export const socket = io("http://localhost:5000");
+export const socket = io("https://YOUR-RENDER-URL.onrender.com/api/login");

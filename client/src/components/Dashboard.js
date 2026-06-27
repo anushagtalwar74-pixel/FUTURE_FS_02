@@ -1,3 +1,4 @@
+import api from "../api";
 import { LayoutDashboard, Users, BarChart3, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -15,16 +16,32 @@ export default function Dashboard() {
     }, []);
 
     const fetchLeads = async () => {
+        try {
         setLoading(true);
-        const res = await axios.get("http://localhost:5000/api/leads");
+
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/leads`);
+
         setLeads(res.data);
+    } catch (err) {
+        console.log(err);
+        toast.error("Failed to fetch leads");
+    } finally {
         setLoading(false);
+    }
     };
 
     const updateStatus = async (id, status) => {
-        await axios.put(`http://localhost:5000/api/leads/${id}`, { status });
+        try {
+        await axios.put(
+            `${process.env.REACT_APP_API_URL}/api/leads/${id}`,
+            { status }
+        );
+
         toast.success("Updated!");
         fetchLeads();
+    } catch (err) {
+        toast.error("Update failed");
+    }
     };
 
     const filtered = leads.filter(l =>
