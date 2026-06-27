@@ -10,20 +10,24 @@ import {
     CartesianGrid
 } from "recharts";
 
-export default function Analytics({ leads }) {
+export default function Analytics({ leads = [] }) {
+
+    const newCount = leads.filter(l => l.status === "new").length;
+    const contactedCount = leads.filter(l => l.status === "contacted").length;
+    const convertedCount = leads.filter(l => l.status === "converted").length;
 
     const data = [
-        { name: "New", value: leads.filter(l => l.status === "new").length },
-        { name: "Contacted", value: leads.filter(l => l.status === "contacted").length },
-        { name: "Converted", value: leads.filter(l => l.status === "converted").length }
+        { name: "New", value: newCount },
+        { name: "Contacted", value: contactedCount },
+        { name: "Converted", value: convertedCount }
     ];
 
     const barData = [
         {
             name: "Leads",
-            new: data[0].value,
-            contacted: data[1].value,
-            converted: data[2].value
+            new: newCount,
+            contacted: contactedCount,
+            converted: convertedCount
         }
     ];
 
@@ -31,8 +35,7 @@ export default function Analytics({ leads }) {
 
     return (
         <div style={{ display: "flex", gap: 40, marginTop: 20 }}>
-            
-            {/* PIE CHART */}
+
             <PieChart width={300} height={250}>
                 <Pie
                     data={data}
@@ -41,14 +44,13 @@ export default function Analytics({ leads }) {
                     outerRadius={90}
                     label
                 >
-                    {data.map((entry, index) => (
+                    {data.map((_, index) => (
                         <Cell key={index} fill={COLORS[index]} />
                     ))}
                 </Pie>
                 <Tooltip />
             </PieChart>
 
-            {/* BAR CHART */}
             <BarChart width={400} height={250} data={barData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
