@@ -5,7 +5,7 @@ const app = express();
 
 // ✅ MIDDLEWARE
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: "https://YOUR-RENDER-URL.onrender.com/api/login",
   credentials: true
 }));
 
