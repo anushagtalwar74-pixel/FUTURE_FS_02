@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Mail, Lock, Sparkles, LogIn } from "lucide-react";
+
 import axios from "axios";
 
 export default function Login() {
