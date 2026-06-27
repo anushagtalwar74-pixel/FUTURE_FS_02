@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { loginUser, getMe } from "../utils/api";
+import axios from "axios";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext();
@@ -8,45 +8,30 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ AUTO LOGIN CHECK (on page refresh)
+  // ✅ AUTO LOGIN (FIXED)
   useEffect(() => {
-    const token = localStorage.getItem("crm_token");
-    const savedUser = localStorage.getItem("crm_user");
+    const token = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
 
-    if (token) {
-      if (savedUser) {
-        try {
-          setUser(JSON.parse(savedUser));
-        } catch (e) {
-          localStorage.removeItem("crm_user");
-        }
-      }
-
-      getMe()
-        .then((res) => {
-          setUser(res.data.user);
-          setLoading(false);
-        })
-        .catch(() => {
-          localStorage.removeItem("crm_token");
-          localStorage.removeItem("crm_user");
-          setUser(null);
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
+    if (token && savedUser) {
+      setUser(JSON.parse(savedUser));
     }
+
+    setLoading(false);
   }, []);
 
   // ✅ LOGIN FUNCTION (FIXED)
   const login = async (email, password) => {
     try {
-      const res = await loginUser({ email, password });
+      const res = await axios.post(
+        "https://future-fs-02-backend-enos.onrender.com/api/auth/login",
+        { email, password }
+      );
 
       const { token, user } = res.data;
 
-      localStorage.setItem("crm_token", token);
-      localStorage.setItem("crm_user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
       setUser(user);
 
@@ -54,41 +39,25 @@ export const AuthProvider = ({ children }) => {
 
       return user;
     } catch (err) {
-      console.log("Login error:", err.response?.data || err.message);
-
-      toast.error("Invalid credentials or server error");
-
+      console.log(err.response?.data);
+      toast.error("Invalid credentials");
       throw err;
     }
   };
 
-  // ✅ LOGOUT FUNCTION
+  // ✅ LOGOUT
   const logout = useCallback(() => {
-    localStorage.removeItem("crm_token");
-    localStorage.removeItem("crm_user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
-
-    toast.success("Logged out successfully 🚪");
+    toast.success("Logged out");
   }, []);
 
-  // optional: update user profile
-  const updateUser = (updatedUser) => {
-    setUser(updatedUser);
-    localStorage.setItem("crm_user", JSON.stringify(updatedUser));
-  };
-
   return (
-    <AuthContext.Provider
-      value={{ user, loading, login, logout, updateUser }}
-    >
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// hook
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
-};
+export const useAuth = () => useContext(AuthContext);

@@ -1,8 +1,7 @@
-import api from "../api";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Mail, Lock, LogIn } from "lucide-react";
-import { toast } from "react-toastify";
+import { Mail, Lock, Sparkles, LogIn } from "lucide-react";
+import axios from "axios";
 
 export default function Login() {
   const { login } = useAuth();
@@ -10,85 +9,60 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+const handleLogin = async () => {
+  if (!email || !password) {
+    alert("Email and password required");
+    return;
+  }
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  setLoading(true);
 
-    setLoading(true);
-    setError("");
+  try {
+    const user = await login(email.trim(), password.trim());
 
-    try {
-      const res = await api.post("/api/auth/login", {
-        email,
-        password
-      });
+    console.log("LOGIN SUCCESS", user);
 
-      localStorage.setItem("token", res.data.token);
+  } catch (err) {
+    console.log("LOGIN ERROR:", err);
+    alert("Invalid login");
+  }
 
-      toast.success("Login successful");
-
-      // keep only if your context supports it
-      if (login) {
-        login(res.data.user);
-      }
-
-    } catch (err) {
-      toast.error("Invalid login or server not running");
-      setError("Invalid login");
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(false);
+};
 
   return (
     <div className="h-screen flex items-center justify-center bg-[#070A12]">
 
-      <div className="w-[380px] bg-[#111A2E] border border-white/10 rounded-2xl p-8">
+      <div className="w-[420px] bg-white/5 p-8 rounded-2xl border border-white/10">
 
-        <h1 className="text-white text-2xl font-bold mb-1">
-          CRM Login
+        <h1 className="text-white text-2xl mb-6 text-center">
+          Login
         </h1>
 
-        <p className="text-gray-400 text-sm mb-6">
-          Sign in to continue
-        </p>
-
-        {error && (
-          <p className="text-red-400 text-sm mb-3">{error}</p>
-        )}
-
         {/* EMAIL */}
-        <div className="flex items-center gap-2 bg-black/30 p-3 rounded-lg mb-3 border border-white/10">
-          <Mail size={16} className="text-gray-400" />
-          <input
-            className="bg-transparent outline-none text-white w-full"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+        <input
+          className="w-full p-3 mb-3 rounded bg-black/40 text-white"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
         {/* PASSWORD */}
-        <div className="flex items-center gap-2 bg-black/30 p-3 rounded-lg mb-5 border border-white/10">
-          <Lock size={16} className="text-gray-400" />
-          <input
-            type="password"
-            className="bg-transparent outline-none text-white w-full"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        <input
+          className="w-full p-3 mb-5 rounded bg-black/40 text-white"
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
         {/* BUTTON */}
         <button
           onClick={handleLogin}
           disabled={loading}
-          className="w-full bg-gradient-to-r from-cyan-500 to-violet-500 text-black font-bold p-3 rounded-lg flex items-center justify-center gap-2"
+          className="w-full bg-cyan-500 p-3 rounded font-bold"
         >
-          <LogIn size={16} />
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Signing in..." : "Login"}
         </button>
 
       </div>

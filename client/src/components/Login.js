@@ -1,23 +1,47 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Mail, Lock, Sparkles, LogIn } from "lucide-react";
+import axios from "axios";
 
 export default function Login() {
   const { login } = useAuth();
 
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!email) return;
+  setLoading(true);
 
-    setLoading(true);
+  try {
+    const res = await axios.post(
+      "https://future-fs-02-backend-enos.onrender.com/api/auth/login",
+      {
+        email,
+        password,
+      }
+    );
 
-    setTimeout(() => {
-      login(email);
-      setLoading(false);
-    }, 800);
-  };
+    console.log("LOGIN SUCCESS:", res.data);
+
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
+    login(res.data.user.email);
+
+    alert("Login successful");
+  } catch (err) {
+    console.log("LOGIN ERROR:", err.response?.data);
+
+    alert(
+      err.response?.data?.msg ||
+      err.response?.data?.message ||
+      "Invalid login"
+    );
+  }
+
+  setLoading(false);
+};
 
   return (
     <div className="h-screen flex items-center justify-center relative overflow-hidden bg-[#070A12]">
@@ -42,33 +66,34 @@ export default function Login() {
           </h1>
 
           <p className="text-gray-400 text-sm mt-1">
-            Sign in to CRM Intelligence Dashboard
+            Sign in to CRM Dashboard
           </p>
         </div>
 
-        {/* EMAIL */}
+        {/* EMAIL INPUT */}
         <div className="mb-4">
           <label className="text-xs text-gray-400">Email</label>
-
           <div className="flex items-center gap-2 bg-black/30 border border-white/10 rounded-lg p-3 mt-1">
             <Mail size={16} className="text-gray-400" />
             <input
               className="bg-transparent w-full outline-none text-white"
-              placeholder="you@example.com"
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
             />
           </div>
         </div>
 
-        {/* PASSWORD (UI ONLY) */}
+        {/* PASSWORD INPUT */}
         <div className="mb-6">
           <label className="text-xs text-gray-400">Password</label>
-
           <div className="flex items-center gap-2 bg-black/30 border border-white/10 rounded-lg p-3 mt-1">
             <Lock size={16} className="text-gray-400" />
             <input
               type="password"
               className="bg-transparent w-full outline-none text-white"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
             />
           </div>
